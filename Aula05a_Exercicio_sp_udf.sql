@@ -9,7 +9,7 @@ telefone CHAR(13) not null
 )
 
 Insert into cliente values
-(21,'Strezkagg',5511983032380),
+(20,'Strezkagg',5511983032380),
 (1,'Kacdros',5511983032380),
 (2,'Idgend',5511983032380),
 (3,'Tarcith',5511983032380),
@@ -92,7 +92,7 @@ END
 
 	select *from venda
 
-EXEC sp_inserevendas 21,9,1
+
 EXEC sp_inserevendas 1,9,1
 EXEC sp_inserevendas 1,10,1 
 EXEC sp_inserevendas 1,2,1 
@@ -307,14 +307,9 @@ BEGIN
 	INSERT @tabela(cod_cliente,nome) SELECT codigo,nome from cliente
 	UPDATE @tabela SET total_gasto = (SELECT SUM(venda.qtde*venda.valor_unit) from venda where cod_cliente=venda.cod_cli)
 	UPDATE @tabela SET _bonus = total_gasto
-	UPDATE @tabela SET _premio = 'JOGO DE COPOS' WHERE _bonus >=1000 AND _bonus < 2000
-	UPDATE @tabela SET _premio = 'JOGO DE PRATOS' WHERE _bonus >=2000 AND _bonus < 3000
-	UPDATE @tabela SET _premio = 'JOGO DE TALHERES' WHERE _bonus >=3000 AND _bonus < 4000
-	UPDATE @tabela SET _premio = 'JOGO DE PORCELANA' WHERE _bonus >=4000 AND _bonus < 5000
-	UPDATE @tabela SET _premio = 'JOGOS DE CRISTAIS' WHERE _bonus >=5000 
+	UPDATE @tabela SET _premio = (SELECT premio from bonus where bonus.valor=(_bonus-_bonus%1000))
 	UPDATE @tabela SET bonus_restante = (_bonus - CAST((SELECT valor FROM bonus WHERE bonus.premio=_premio) AS INT))
 
 	RETURN 
 END
-
 select * FROM dbo.fn_tablebonus()
